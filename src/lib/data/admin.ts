@@ -132,13 +132,13 @@ export async function listAdminSeries(supabase: SupabaseClient) {
   const { data, error } = await supabase
     .from("series")
     .select(
-      "id, title, slug, description, year, location, cover_image_url, cover_photograph_id, published, sort_order, updated_at, photographs(count)",
+      "id, title, slug, description, year, location, cover_image_url, cover_photograph_id, published, sort_order, updated_at, photographs!photographs_series_id_fkey(count)",
     )
     .order("sort_order", { ascending: true })
     .order("title", { ascending: true })
 
   if (error || !data) {
-    return []
+    throw new Error("No se pudieron leer las categorías.")
   }
 
   return (data as SeriesRow[]).map(mapSeries)
@@ -148,12 +148,16 @@ export async function getAdminSeries(supabase: SupabaseClient, id: string) {
   const { data, error } = await supabase
     .from("series")
     .select(
-      "id, title, slug, description, year, location, cover_image_url, cover_photograph_id, published, sort_order, updated_at, photographs(count)",
+      "id, title, slug, description, year, location, cover_image_url, cover_photograph_id, published, sort_order, updated_at, photographs!photographs_series_id_fkey(count)",
     )
     .eq("id", id)
     .maybeSingle()
 
-  if (error || !data) {
+  if (error) {
+    throw new Error("No se pudo leer la categoría.")
+  }
+
+  if (!data) {
     return null
   }
 
