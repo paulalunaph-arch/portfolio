@@ -17,7 +17,7 @@ async function HomeContent() {
   const name = settings.photographerName || "Paula Luna"
 
   return (
-    <div className="mx-auto max-w-[1440px] px-5 md:px-10 lg:px-11">
+    <div className="px-5 md:px-10 lg:px-11">
       <header className="border-b border-line pb-12 pt-14 md:pb-[50px] md:pt-16">
         <p className="text-[11px] uppercase tracking-[0.18em] text-mute">Fotografía seleccionada</p>
         <h1 className="mt-[18px] font-serif text-[clamp(3.25rem,6vw,5.5rem)] leading-[0.92] tracking-[-0.045em]">

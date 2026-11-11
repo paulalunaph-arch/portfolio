@@ -30,10 +30,10 @@ export function rowGap(width: number) {
 
 export function rowTarget(width: number) {
   if (width < 1024) {
-    return Math.round(Math.min(340, Math.max(240, width * 0.4)))
+    return Math.round(Math.min(380, Math.max(220, width * 0.42)))
   }
 
-  return Math.round(Math.min(420, Math.max(300, width * 0.3)))
+  return Math.round(Math.min(680, Math.max(300, width * 0.32)))
 }
 
 export function justifyRows<T extends { width: number; height: number }>(
@@ -58,47 +58,60 @@ export function justifyRows<T extends { width: number; height: number }>(
     })
   }
 
-  const rows: JustifiedRow<T>[] = []
+  const groups: JustifiedItem<T>[][] = []
   let row: JustifiedItem<T>[] = []
-  const comfortable = targetHeight * 1.35
+  const comfortable = targetHeight * 1.45
 
-  const commit = (items: JustifiedItem<T>[], fill: boolean) => {
-    const filled = heightFor(items, containerWidth, gap)
-    rows.push({
-      items,
-      height: fill ? filled : Math.min(targetHeight, filled),
-      fill,
-    })
+  const close = () => {
+    if (row.length > 0) {
+      groups.push(row)
+    }
+
+    row = []
   }
 
   for (const photo of photos) {
-    const next: JustifiedItem<T>[] = [...row, { item: photo, aspect: aspectOf(photo) }]
+    const entry = { item: photo, aspect: aspectOf(photo) }
+    const next = [...row, entry]
     const nextHeight = heightFor(next, containerWidth, gap)
 
     if (row.length >= 2) {
       const currentHeight = heightFor(row, containerWidth, gap)
 
-      if (currentHeight <= comfortable && nextHeight < targetHeight * 0.92) {
-        commit(row, true)
-        row = [{ item: photo, aspect: aspectOf(photo) }]
+      if (currentHeight <= comfortable && nextHeight < targetHeight * 0.78) {
+        close()
+        row = [entry]
         continue
       }
     }
 
     row = next
 
-    if (nextHeight <= targetHeight && row.length >= 2) {
-      commit(row, true)
-      row = []
+    if (row.length >= 2 && nextHeight <= targetHeight) {
+      close()
     }
   }
 
   if (row.length > 0) {
-    const filled = heightFor(row, containerWidth, gap)
-    const loneLandscape = row.length === 1 && row[0].aspect >= 1
-    const limit = loneLandscape ? targetHeight * 1.85 : comfortable
-    commit(row, filled <= limit)
+    groups.push(row)
   }
 
-  return rows
+  if (groups.length >= 2) {
+    const last = groups[groups.length - 1]
+    const previous = groups[groups.length - 2]
+
+    if (last.length === 1 && previous.length >= 3) {
+      const moved = previous.pop()
+
+      if (moved) {
+        last.unshift(moved)
+      }
+    }
+  }
+
+  return groups.map((items) => ({
+    items,
+    height: heightFor(items, containerWidth, gap),
+    fill: true,
+  }))
 }

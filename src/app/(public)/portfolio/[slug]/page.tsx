@@ -62,7 +62,7 @@ async function SeriesContent({ params }: { params: Promise<RouteParams> }) {
   const meta = metaLine([series.year, series.location])
 
   return (
-    <article className="mx-auto max-w-[1440px] px-5 py-14 md:px-10 md:py-20 lg:px-11">
+    <article className="px-5 py-14 md:px-10 md:py-20 lg:px-11">
       <p className="text-[0.72rem] uppercase tracking-[0.18em] text-mute">
         <Link href="/portfolio" className="underline decoration-line underline-offset-4">
           Portfolio
