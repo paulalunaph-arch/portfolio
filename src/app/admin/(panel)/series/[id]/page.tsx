@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { DeleteSeries } from "@/components/admin/DeleteSeries"
 import { PhotographManager } from "@/components/admin/PhotographManager"
 import { PhotographUploader } from "@/components/admin/PhotographUploader"
+import { NewSeries } from "@/components/admin/NewSeries"
 import { SeriesForm } from "@/components/admin/SeriesForm"
 import { requireAdmin } from "@/lib/auth"
 import { getAdminSeries, listAdminPhotographs } from "@/lib/data/admin"
@@ -17,6 +18,11 @@ export default async function EditSeriesPage({
 }) {
   const { supabase } = await requireAdmin()
   const [{ id }, query] = await Promise.all([params, searchParams])
+
+  // La ruta dinámica también puede recibir "nueva" y tapar la página estática.
+  if (id === "nueva") {
+    return <NewSeries />
+  }
 
   if (!isUuid(id)) {
     notFound()
