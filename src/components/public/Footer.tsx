@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { connection } from "next/server"
 import { getSiteSettings } from "@/lib/data/public"
+import { quietButtonClass } from "@/components/ui/controls"
 import { instagramHref, instagramLabel } from "@/utils/format"
 
 export async function Footer() {
@@ -31,6 +32,9 @@ export async function Footer() {
           ))}
           <Link href="/contacto" className="underline decoration-line underline-offset-4">
             Contacto
+          </Link>
+          <Link href="/admin/login" className={quietButtonClass}>
+            Estudio
           </Link>
         </div>
       </div>
