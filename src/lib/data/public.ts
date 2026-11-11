@@ -193,7 +193,7 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
   const { data, error } = await supabase
     .from("photographs")
     .select(
-      "id, image_url, caption, alt_text, location, taken_at, width, height, series!inner(title, slug, published)",
+      "id, image_url, caption, alt_text, location, taken_at, width, height, series!photographs_series_id_fkey!inner(title, slug, published)",
     )
     .eq("published", true)
     .eq("home_selected", true)
