@@ -145,6 +145,19 @@ type HomeRow = {
   series: HomeSeries
 }
 
+async function hasPublishedSeries(supabase: NonNullable<ReturnType<typeof createPublicClient>>) {
+  const { count, error } = await supabase
+    .from("series")
+    .select("id", { count: "exact", head: true })
+    .eq("published", true)
+
+  if (error) {
+    return true
+  }
+
+  return (count ?? 0) > 0
+}
+
 function oneSeries(series: HomeSeries) {
   if (Array.isArray(series)) {
     return series[0] ?? null
@@ -176,10 +189,10 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
     .order("sort_order", { ascending: true })
 
   if (error || !data) {
-    return []
+    return (await hasPublishedSeries(supabase)) ? [] : demoHomeSelection
   }
 
-  return (data as HomeRow[]).flatMap((row) => {
+  const photos = (data as HomeRow[]).flatMap((row) => {
     const series = oneSeries(row.series)
 
     if (!row.image_url || !row.width || !row.height || !series) {
@@ -201,6 +214,12 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
       },
     ]
   })
+
+  if (photos.length > 0 || (await hasPublishedSeries(supabase))) {
+    return photos
+  }
+
+  return demoHomeSelection
 }
 
 export async function getPublishedSeries(): Promise<SeriesSummary[]> {
@@ -225,6 +244,10 @@ export async function getPublishedSeries(): Promise<SeriesSummary[]> {
 
   if (error || !data) {
     return []
+  }
+
+  if (data.length === 0) {
+    return demoSummaries
   }
 
   return (data as SeriesListRow[]).map((row) => {
@@ -277,7 +300,17 @@ export async function getPublishedSeriesBySlug(slug: string): Promise<PublishedS
     .eq("published", true)
     .maybeSingle()
 
-  if (error || !data) {
+  if (error) {
+    return null
+  }
+
+  if (!data) {
+    const demo = findDemoSeries(slug)
+
+    if (demo && !(await hasPublishedSeries(supabase))) {
+      return demo
+    }
+
     return null
   }
 
