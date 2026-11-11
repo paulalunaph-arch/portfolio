@@ -145,14 +145,15 @@ type HomeRow = {
   series: HomeSeries
 }
 
-async function hasPublishedSeries(supabase: NonNullable<ReturnType<typeof createPublicClient>>) {
+async function hasPublishedPhotographs(supabase: NonNullable<ReturnType<typeof createPublicClient>>) {
   const { count, error } = await supabase
-    .from("series")
+    .from("photographs")
     .select("id", { count: "exact", head: true })
     .eq("published", true)
+    .not("image_url", "is", null)
 
   if (error) {
-    return true
+    return false
   }
 
   return (count ?? 0) > 0
@@ -189,7 +190,7 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
     .order("sort_order", { ascending: true })
 
   if (error || !data) {
-    return (await hasPublishedSeries(supabase)) ? [] : demoHomeSelection
+    return (await hasPublishedPhotographs(supabase)) ? [] : demoHomeSelection
   }
 
   const photos = (data as HomeRow[]).flatMap((row) => {
@@ -215,7 +216,7 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
     ]
   })
 
-  if (photos.length > 0 || (await hasPublishedSeries(supabase))) {
+  if (photos.length > 0 || (await hasPublishedPhotographs(supabase))) {
     return photos
   }
 
@@ -246,7 +247,7 @@ export async function getPublishedSeries(): Promise<SeriesSummary[]> {
     return []
   }
 
-  if (data.length === 0) {
+  if (data.length === 0 || !(await hasPublishedPhotographs(supabase))) {
     return demoSummaries
   }
 
@@ -307,7 +308,7 @@ export async function getPublishedSeriesBySlug(slug: string): Promise<PublishedS
   if (!data) {
     const demo = findDemoSeries(slug)
 
-    if (demo && !(await hasPublishedSeries(supabase))) {
+    if (demo && !(await hasPublishedPhotographs(supabase))) {
       return demo
     }
 
