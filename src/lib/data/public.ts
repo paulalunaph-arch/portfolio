@@ -1,7 +1,6 @@
 import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
 import { createPublicClient } from "@/lib/supabase/public"
-import { demoHomeSelection, demoSettings, demoSummaries, findDemoSeries } from "@/lib/data/demo"
 import {
   emptySettings,
   type GalleryPhoto,
@@ -106,7 +105,7 @@ export async function getSiteSettings() {
   const supabase = createPublicClient()
 
   if (!supabase) {
-    return demoSettings
+    return emptySettings
   }
 
   const { data, error } = await supabase.from("site_settings").select("*").limit(1).maybeSingle()
@@ -157,20 +156,6 @@ type HomeRow = {
   series: HomeSeries
 }
 
-async function hasPublishedPhotographs(supabase: NonNullable<ReturnType<typeof createPublicClient>>) {
-  const { count, error } = await supabase
-    .from("photographs")
-    .select("id", { count: "exact", head: true })
-    .eq("published", true)
-    .not("image_url", "is", null)
-
-  if (error) {
-    return false
-  }
-
-  return (count ?? 0) > 0
-}
-
 function oneSeries(series: HomeSeries) {
   if (Array.isArray(series)) {
     return series[0] ?? null
@@ -187,7 +172,7 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
   const supabase = createPublicClient()
 
   if (!supabase) {
-    return demoHomeSelection
+    return []
   }
 
   const { data, error } = await supabase
@@ -202,7 +187,7 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
     .order("sort_order", { ascending: true })
 
   if (error || !data) {
-    return (await hasPublishedPhotographs(supabase)) ? [] : demoHomeSelection
+    return []
   }
 
   const photos = (data as HomeRow[]).flatMap((row) => {
@@ -228,11 +213,7 @@ export async function getHomeSelection(): Promise<GalleryPhoto[]> {
     ]
   })
 
-  if (photos.length > 0 || (await hasPublishedPhotographs(supabase))) {
-    return photos
-  }
-
-  return demoHomeSelection
+  return photos
 }
 
 export async function getPublishedSeries(): Promise<SeriesSummary[]> {
@@ -243,7 +224,7 @@ export async function getPublishedSeries(): Promise<SeriesSummary[]> {
   const supabase = createPublicClient()
 
   if (!supabase) {
-    return demoSummaries
+    return []
   }
 
   const { data, error } = await supabase
@@ -257,10 +238,6 @@ export async function getPublishedSeries(): Promise<SeriesSummary[]> {
 
   if (error || !data) {
     return []
-  }
-
-  if (data.length === 0 || !(await hasPublishedPhotographs(supabase))) {
-    return demoSummaries
   }
 
   return (data as SeriesListRow[]).map((row) => {
@@ -301,7 +278,7 @@ export async function getPublishedSeriesBySlug(slug: string): Promise<PublishedS
   const supabase = createPublicClient()
 
   if (!supabase) {
-    return findDemoSeries(slug)
+    return null
   }
 
   const { data, error } = await supabase
@@ -314,12 +291,6 @@ export async function getPublishedSeriesBySlug(slug: string): Promise<PublishedS
     .maybeSingle()
 
   if (error || !data) {
-    const demo = findDemoSeries(slug)
-
-    if (demo && !(await hasPublishedPhotographs(supabase))) {
-      return demo
-    }
-
     return null
   }
 
