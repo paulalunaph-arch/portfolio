@@ -2,8 +2,9 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { GalleryPhoto } from "@/types/content"
+import { justifyRows, rowGap, rowTarget } from "@/components/public/justifyRows"
 import { formatDateLabel, metaLine } from "@/utils/format"
 
 export function PhotoViewer({
@@ -73,10 +74,67 @@ export function PhotoViewer({
     }
   }, [openIndex, photos.length])
 
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [frameWidth, setFrameWidth] = useState(0)
   const active = openIndex === null ? null : photos[openIndex]
+  const gap = rowGap(frameWidth)
+  const rows = variant === "masonry" ? justifyRows(photos, frameWidth, rowTarget(frameWidth), gap) : []
+
+  useLayoutEffect(() => {
+    if (variant !== "masonry") {
+      return
+    }
+
+    const frame = frameRef.current
+
+    if (!frame) {
+      return
+    }
+
+    const measure = () => setFrameWidth(frame.clientWidth)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(frame)
+
+    return () => observer.disconnect()
+  }, [variant, photos.length])
 
   return (
     <>
+      <div ref={variant === "masonry" ? frameRef : undefined}>
+      {variant === "masonry" && rows.length > 0 ? (
+        <div className="flex flex-col" style={{ gap }}>
+          {rows.map((row) => (
+            <div key={row.items.map((entry) => entry.item.id).join("-")} className="flex w-full" style={{ height: row.height, gap }}>
+              {row.items.map((entry) => {
+                const photo = entry.item
+                const index = photos.findIndex((item) => item.id === photo.id)
+
+                return (
+                  <div
+                    key={photo.id}
+                    className="relative h-full min-w-0"
+                    style={
+                      row.fill
+                        ? { flex: `${Math.round(entry.aspect * 1000)} 1 0%` }
+                        : { width: row.height * entry.aspect, flex: "0 0 auto" }
+                    }
+                  >
+                    <PhotoFrame
+                      photo={photo}
+                      index={index}
+                      onOpen={(element) => {
+                        returnFocus.current = element
+                        setOpenIndex(index)
+                      }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      ) : (
       <ol className={variant === "masonry" ? "columns-1 gap-3.5 sm:columns-2 lg:columns-3 lg:gap-[22px]" : "flex flex-col gap-16 md:gap-24"}>
         {photos.map((photo, index) => {
           const landscape = photo.width >= photo.height
@@ -145,6 +203,8 @@ export function PhotoViewer({
           )
         })}
       </ol>
+      )}
+      </div>
 
       {active && openIndex !== null ? (
         <div
@@ -231,5 +291,41 @@ export function PhotoViewer({
         </div>
       ) : null}
     </>
+  )
+}
+
+function PhotoFrame({
+  photo,
+  index,
+  onOpen,
+}: {
+  photo: GalleryPhoto
+  index: number
+  onOpen: (element: HTMLButtonElement) => void
+}) {
+  const privateImage = photo.src.includes("/object/sign/")
+
+  return (
+    <button
+      type="button"
+      className="relative block h-full w-full cursor-zoom-in"
+      onClick={(event) => onOpen(event.currentTarget)}
+      aria-haspopup="dialog"
+      aria-label={`Ampliar: ${photo.alt}`}
+    >
+      {privateImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={photo.src} alt={photo.alt} className="h-full w-full object-contain" />
+      ) : (
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          fill
+          sizes="(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 100vw"
+          priority={index < 3}
+          className="object-contain"
+        />
+      )}
+    </button>
   )
 }
