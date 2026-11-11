@@ -40,7 +40,7 @@ const photos = {
 } as const
 
 const note =
-  "Serie de prueba para revisar la maqueta. Estas fotografías no forman parte del archivo de Paula Luna."
+  "Categoría de prueba para revisar la maqueta. Estas fotografías no forman parte del archivo de Paula Luna."
 
 function series(
   id: string,
@@ -77,7 +77,7 @@ export const demoSettings: SiteSettings = {
 }
 
 export const demoSeries: PublishedSeries[] = [
-  series("demo-series-calle", "Serie de prueba · Calle", "serie-de-prueba-calle", photos["01"], [
+  series("demo-series-calle", "Categoría de prueba · Calle", "serie-de-prueba-calle", photos["01"], [
     photos["01"],
     photos["06"],
     photos["10"],
@@ -85,14 +85,14 @@ export const demoSeries: PublishedSeries[] = [
   ]),
   series(
     "demo-series-interior",
-    "Serie de prueba · Interior",
+    "Categoría de prueba · Interior",
     "serie-de-prueba-interior",
     photos["05"],
     [photos["04"], photos["05"], photos["08"], photos["09"]],
   ),
   series(
     "demo-series-distancia",
-    "Serie de prueba · Distancia",
+    "Categoría de prueba · Distancia",
     "serie-de-prueba-distancia",
     photos["02"],
     [photos["02"], photos["07"]],

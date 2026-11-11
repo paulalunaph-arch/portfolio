@@ -6,7 +6,7 @@ import { getPublishedSeries } from "@/lib/data/public"
 
 export const metadata: Metadata = {
   title: "Portfolio",
-  description: "Series de fotoperiodismo y fotografía documental.",
+  description: "Trabajos de fotoperiodismo y fotografía documental.",
 }
 
 export default function PortfolioPage() {
@@ -29,7 +29,7 @@ async function PortfolioContent() {
           Portfolio
         </h1>
         <p className="mt-[18px] max-w-[720px] text-[17px] leading-[1.55] text-mute">
-          Series de fotoperiodismo y fotografía documental.
+          Trabajos de fotoperiodismo y fotografía documental.
         </p>
       </header>
       <div className="py-12 md:py-20">

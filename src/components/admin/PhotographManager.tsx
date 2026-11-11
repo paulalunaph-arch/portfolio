@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import {
   deletePhotograph,
   reorderPhotographs,
@@ -9,9 +9,23 @@ import {
   setCover,
 } from "@/lib/actions/photographs"
 import { buttonClass, dangerButtonClass, fieldClass, labelClass, quietButtonClass } from "@/components/ui/controls"
+import { Hint } from "@/components/ui/Hint"
+import { useUnsavedChanges } from "@/components/admin/useUnsavedChanges"
 import type { AdminPhotograph } from "@/types/content"
 import { reductionPercent } from "@/lib/validations/content"
 import { formatBytes } from "@/utils/format"
+
+function snapshot(photos: AdminPhotograph[]) {
+  return photos.map((photo) => ({
+    id: photo.id,
+    caption: photo.caption,
+    altText: photo.altText,
+    location: photo.location,
+    takenAt: photo.takenAt,
+    published: photo.published,
+    homeSelected: photo.homeSelected,
+  }))
+}
 
 export function PhotographManager({
   seriesId,
@@ -24,11 +38,63 @@ export function PhotographManager({
 }) {
   const router = useRouter()
   const [items, setItems] = useState(photos)
+  const [baseline, setBaseline] = useState(() => snapshot(photos))
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
   const [dragging, setDragging] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const dirty = items.some((item) => {
+    const base = baseline.find((entry) => entry.id === item.id)
+
+    if (!base) {
+      return false
+    }
+
+    return (
+      base.caption !== item.caption ||
+      base.altText !== item.altText ||
+      base.location !== item.location ||
+      base.takenAt !== item.takenAt ||
+      base.published !== item.published ||
+      base.homeSelected !== item.homeSelected
+    )
+  })
+
+  useUnsavedChanges(dirty)
+
+  useEffect(() => {
+    setItems((current) => {
+      const byId = new Map(current.map((item) => [item.id, item]))
+
+      return photos.map((photo) => {
+        const local = byId.get(photo.id)
+
+        if (!local) {
+          return photo
+        }
+
+        return {
+          ...photo,
+          caption: local.caption,
+          altText: local.altText,
+          location: local.location,
+          takenAt: local.takenAt,
+          published: local.published,
+          homeSelected: local.homeSelected,
+        }
+      })
+    })
+    setBaseline((current) => {
+      const ids = new Set(photos.map((photo) => photo.id))
+      const known = new Set(current.map((item) => item.id))
+
+      return [
+        ...current.filter((item) => ids.has(item.id)),
+        ...snapshot(photos).filter((item) => !known.has(item.id)),
+      ]
+    })
+  }, [photos])
 
   function replace(next: AdminPhotograph[]) {
     setItems(next)
@@ -67,11 +133,17 @@ export function PhotographManager({
   return (
     <section className="mt-14">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h2 className="font-serif text-3xl tracking-tight">Fotografías</h2>
-        <p className="text-sm text-mute">{items.length} en la serie</p>
+        <div>
+          <h2 className="font-serif text-3xl tracking-tight">Fotografías</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-mute">
+            El orden de esta lista es el orden dentro de la categoría. Portada es la foto que se ve en el portfolio,
+            antes de entrar. Guardar epígrafes confirma textos, fechas y las dos casillas.
+          </p>
+        </div>
+        <p className="text-sm text-mute">{items.length} en la categoría</p>
       </div>
       {items.length === 0 ? (
-        <p className="mt-6 text-sm text-mute">Todavía no hay fotografías en esta serie.</p>
+        <p className="mt-6 text-sm text-mute">Todavía no hay fotografías en esta categoría.</p>
       ) : (
         <form
           className="mt-6"
@@ -96,6 +168,7 @@ export function PhotographManager({
                 return
               }
               setError(null)
+              setBaseline(snapshot(items))
               setMessage("ok" in result ? result.ok ?? "Cambios guardados." : "Cambios guardados.")
               router.refresh()
             })
@@ -160,8 +233,9 @@ export function PhotographManager({
                           const caption = event.target.value
                           replace(items.map((item) => (item.id === photo.id ? { ...item, caption } : item)))
                         }}
-                        className={fieldClass}
+                        className={`${fieldClass} mt-2`}
                       />
+                      <Hint>El texto que se lee al abrir la foto. Puede contar el contexto. Si lo dejás vacío, la foto se abre sin texto.</Hint>
                     </div>
                     <div>
                       <label className={labelClass} htmlFor={`alt-${photo.id}`}>
@@ -174,8 +248,9 @@ export function PhotographManager({
                           const altText = event.target.value
                           replace(items.map((item) => (item.id === photo.id ? { ...item, altText } : item)))
                         }}
-                        className={fieldClass}
+                        className={`${fieldClass} mt-2`}
                       />
+                      <Hint>Describe la imagen para quien no puede verla. Si queda vacío, se usa el epígrafe.</Hint>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
@@ -189,8 +264,9 @@ export function PhotographManager({
                             const location = event.target.value
                             replace(items.map((item) => (item.id === photo.id ? { ...item, location } : item)))
                           }}
-                          className={fieldClass}
+                          className={`${fieldClass} mt-2`}
                         />
+                        <Hint>El lugar de esta foto. Aparece al abrirla. Si no aplica, dejalo vacío.</Hint>
                       </div>
                       <div>
                         <label className={labelClass} htmlFor={`taken-${photo.id}`}>
@@ -204,37 +280,44 @@ export function PhotographManager({
                             const takenAt = event.target.value
                             replace(items.map((item) => (item.id === photo.id ? { ...item, takenAt } : item)))
                           }}
-                          className={fieldClass}
+                          className={`${fieldClass} mt-2`}
                         />
+                        <Hint>El día en que se hizo. Se muestra como día.mes.año al abrir la foto.</Hint>
                       </div>
                     </div>
-                    <label className="flex items-center gap-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={photo.published}
-                        onChange={(event) => {
-                          const published = event.target.checked
-                          replace(items.map((item) => (item.id === photo.id ? { ...item, published } : item)))
-                        }}
-                        className="size-4 accent-ink"
-                      />
-                      Publicada dentro de la serie
-                    </label>
-                    <label className="flex items-center gap-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={photo.homeSelected}
-                        onChange={(event) => {
-                          const homeSelected = event.target.checked
-                          replace(items.map((item) => (item.id === photo.id ? { ...item, homeSelected } : item)))
-                        }}
-                        className="size-4 accent-ink"
-                      />
-                      Incluir en la selección del inicio
-                    </label>
-                    <p className="text-xs text-mute">
-                      Aparece en la portada solo si la fotografía y la serie están publicadas. El orden es el de las marcas: para llevar una foto al final, hay que desmarcarla y volver a marcarla.
-                    </p>
+                    <div>
+                      <label className="flex items-center gap-3 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={photo.published}
+                          onChange={(event) => {
+                            const published = event.target.checked
+                            replace(items.map((item) => (item.id === photo.id ? { ...item, published } : item)))
+                          }}
+                          className="size-4 accent-ink"
+                        />
+                        Publicada dentro de la categoría
+                      </label>
+                      <Hint>Si está marcada, la foto se ve en la categoría publicada. Si no, queda guardada pero oculta.</Hint>
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-3 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={photo.homeSelected}
+                          onChange={(event) => {
+                            const homeSelected = event.target.checked
+                            replace(items.map((item) => (item.id === photo.id ? { ...item, homeSelected } : item)))
+                          }}
+                          className="size-4 accent-ink"
+                        />
+                        Incluir en la selección del inicio
+                      </label>
+                      <Hint>
+                        Aparece en la portada solo si la fotografía y la categoría están publicadas. El orden es el de las
+                        marcas: para llevar una foto al final, hay que desmarcarla y volver a marcarla.
+                      </Hint>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -292,6 +375,7 @@ export function PhotographManager({
                                 setPendingDelete(null)
                                 setError(null)
                                 setMessage("Fotografía eliminada.")
+                                setBaseline((current) => current.filter((item) => item.id !== photo.id))
                                 replace(items.filter((item) => item.id !== photo.id))
                                 router.refresh()
                               })

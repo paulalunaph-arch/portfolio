@@ -7,7 +7,7 @@ export function SeriesCard({ series }: { series: SeriesSummary }) {
     <article>
       <Link href={`/portfolio/${series.slug}`} className="group block text-ink no-underline">
         {series.coverUrl ? (
-          <div className="relative aspect-[3/2] overflow-hidden bg-[#f3f3f0]">
+          <div className="relative aspect-[3/2] overflow-hidden bg-[#0c0b0a]">
             <Image
               src={series.coverUrl}
               alt={series.coverAlt}
@@ -17,7 +17,7 @@ export function SeriesCard({ series }: { series: SeriesSummary }) {
             />
           </div>
         ) : (
-          <div className="flex aspect-[3/2] items-end bg-[#f3f3f0] p-5">
+          <div className="flex aspect-[3/2] items-end bg-[#0c0b0a] p-5">
             <p className="text-sm text-mute">Sin portada</p>
           </div>
         )}
@@ -33,7 +33,7 @@ export function SeriesCard({ series }: { series: SeriesSummary }) {
         {series.description ? (
           <p className="mt-3.5 line-clamp-3 max-w-[570px] text-sm leading-[1.6] text-mute">{series.description}</p>
         ) : null}
-        <span className="mt-5 inline-flex text-[11px] uppercase tracking-[0.1em]">Ver serie</span>
+        <span className="mt-5 inline-flex text-[11px] uppercase tracking-[0.1em]">Ver categoría</span>
       </Link>
     </article>
   )

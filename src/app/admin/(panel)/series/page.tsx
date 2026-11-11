@@ -1,10 +1,19 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { moveSeries } from "@/lib/actions/series"
 import { quietButtonClass } from "@/components/ui/controls"
 import { requireAdmin } from "@/lib/auth"
 import { listAdminSeries } from "@/lib/data/admin"
 
-export default async function SeriesIndexPage() {
+export default function SeriesIndexPage() {
+  return (
+    <Suspense fallback={<p className="text-sm text-mute">Abriendo las categorías…</p>}>
+      <SeriesContent />
+    </Suspense>
+  )
+}
+
+async function SeriesContent() {
   const { supabase } = await requireAdmin()
   const series = await listAdminSeries(supabase)
 
@@ -13,15 +22,18 @@ export default async function SeriesIndexPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[0.72rem] uppercase tracking-[0.18em] text-mute">Archivo</p>
-          <h1 className="mt-3 font-serif text-5xl tracking-tight">Series</h1>
+          <h1 className="mt-3 font-serif text-5xl tracking-tight">Categorías</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-mute">
+            Cada categoría es una página del portfolio. Subir la pone más arriba; bajar, más abajo.
+          </p>
         </div>
         <Link href="/admin/series/nueva" className="text-[0.72rem] uppercase tracking-[0.16em] underline underline-offset-4">
-          Nueva serie
+          Nueva categoría
         </Link>
       </div>
       {series.length === 0 ? (
         <p className="mt-10 max-w-md text-sm leading-6 text-mute">
-          Todavía no hay series. La primera puede quedar en borrador hasta que tenga fotografías.
+          Todavía no hay categorías. La primera puede quedar en borrador hasta que tenga fotografías.
         </p>
       ) : (
         <ul className="mt-10 border-b border-line">

@@ -1,6 +1,6 @@
 import "server-only"
 import type { SupabaseClient } from "@supabase/supabase-js"
-import type { AdminPhotograph, AdminSeries, DashboardData, SiteSettings, SocialLink } from "@/types/content"
+import { emptySettings, type AdminPhotograph, type AdminSeries, type DashboardData, type SiteSettings, type SocialLink } from "@/types/content"
 
 type SeriesRow = {
   id: string
@@ -86,7 +86,15 @@ export async function getAdminSettings(supabase: SupabaseClient): Promise<SiteSe
     socialLinks: asLinks(data.social_links),
     seoTitle: data.seo_title ?? "",
     seoDescription: data.seo_description ?? "",
+    colorBackground: hexOr(data.color_background, emptySettings.colorBackground),
+    colorText: hexOr(data.color_text, emptySettings.colorText),
+    colorMuted: hexOr(data.color_muted, emptySettings.colorMuted),
+    colorLine: hexOr(data.color_line, emptySettings.colorLine),
   }
+}
+
+function hexOr(value: unknown, fallback: string) {
+  return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value) ? value.toLowerCase() : fallback
 }
 
 export async function getDashboard(supabase: SupabaseClient): Promise<DashboardData> {

@@ -140,7 +140,7 @@ export async function syncSeriesVisibility(supabase: SupabaseClient, seriesId: s
     .single()
 
   if (error || !series) {
-    throw new Error("No se encontró la serie.")
+    throw new Error("No se encontró la categoría.")
   }
 
   const { data: photos, error: photosError } = await supabase
@@ -149,7 +149,7 @@ export async function syncSeriesVisibility(supabase: SupabaseClient, seriesId: s
     .eq("series_id", seriesId)
 
   if (photosError) {
-    throw new Error("No se pudieron leer las fotografías de la serie.")
+    throw new Error("No se pudieron leer las fotografías de la categoría.")
   }
 
   for (const photo of (photos ?? []) as PhotoVisibilityRow[]) {

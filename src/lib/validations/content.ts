@@ -65,6 +65,18 @@ export function validateSeriesInput(input: {
   return null
 }
 
+const hexPattern = /^#[0-9a-fA-F]{6}$/
+
+export function readColor(value: FormDataEntryValue | null, label: string) {
+  const color = readText(value, 7)
+
+  if (!hexPattern.test(color)) {
+    return { error: `${label} tiene que ser un color como #040302.` }
+  }
+
+  return { color: color.toLowerCase() }
+}
+
 export function validateEmail(value: string) {
   if (!value) {
     return null

@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f5f4f0;
-  --ink: #171717;
-  --mute: #858585;
-  --line: #e5e3de;
-  --danger: #7a2e2e;
+  --paper: #040302;
+  --ink: #f5f4ef;
+  --mute: #a8a39b;
+  --line: #161412;
+  --danger: #e0b4b4;
   --background: var(--paper);
   --foreground: var(--ink);
 }
@@ -29,6 +29,7 @@
 html {
   scroll-behavior: smooth;
   background: var(--paper);
+  color-scheme: dark;
 }
 
 body {

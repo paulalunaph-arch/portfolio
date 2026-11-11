@@ -35,6 +35,10 @@ type SettingsRow = {
   social_links: unknown
   seo_title: string
   seo_description: string
+  color_background?: string | null
+  color_text?: string | null
+  color_muted?: string | null
+  color_line?: string | null
 }
 
 function asLinks(value: unknown): SocialLink[] {
@@ -83,7 +87,15 @@ function mapSettings(row: SettingsRow): SiteSettings {
     socialLinks: asLinks(row.social_links),
     seoTitle: row.seo_title ?? "",
     seoDescription: row.seo_description ?? "",
+    colorBackground: hexOr(row.color_background, emptySettings.colorBackground),
+    colorText: hexOr(row.color_text, emptySettings.colorText),
+    colorMuted: hexOr(row.color_muted, emptySettings.colorMuted),
+    colorLine: hexOr(row.color_line, emptySettings.colorLine),
   }
+}
+
+function hexOr(value: string | null | undefined, fallback: string) {
+  return value && /^#[0-9a-fA-F]{6}$/.test(value) ? value.toLowerCase() : fallback
 }
 
 export async function getSiteSettings() {
@@ -295,17 +307,13 @@ export async function getPublishedSeriesBySlug(slug: string): Promise<PublishedS
   const { data, error } = await supabase
     .from("series")
     .select(
-      "id, title, slug, description, year, location, cover_image_url, photographs(id, image_url, caption, alt_text, location, taken_at, width, height, sort_order)",
+      "id, title, slug, description, year, location, cover_image_url, photographs!photographs_series_id_fkey(id, image_url, caption, alt_text, location, taken_at, width, height, sort_order)",
     )
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle()
 
-  if (error) {
-    return null
-  }
-
-  if (!data) {
+  if (error || !data) {
     const demo = findDemoSeries(slug)
 
     if (demo && !(await hasPublishedPhotographs(supabase))) {

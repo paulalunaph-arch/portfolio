@@ -152,7 +152,7 @@ export function PhotoViewer({
           role="dialog"
           aria-modal="true"
           aria-label={active.alt}
-          className="fixed inset-0 z-50 flex flex-col bg-[#111] text-[#f5f4f0]"
+          className="fixed inset-0 z-50 flex flex-col bg-[#020101] text-[#f5f4ef]"
           onTouchStart={(event) => {
             touchStart.current = event.changedTouches[0]?.clientX ?? null
           }}
@@ -174,7 +174,7 @@ export function PhotoViewer({
           }}
         >
           <div className="flex items-center justify-between px-4 py-4 md:px-8">
-            <p className="text-[0.72rem] uppercase tracking-[0.16em] text-[#f5f4f0]/70">
+            <p className="text-[0.72rem] uppercase tracking-[0.16em] text-[#f5f4ef]/70">
               {openIndex + 1} / {photos.length}
             </p>
             <button ref={closeRef} type="button" className="text-[0.72rem] uppercase tracking-[0.16em]" onClick={() => setOpenIndex(null)}>
@@ -216,7 +216,7 @@ export function PhotoViewer({
                   href={`/portfolio/${active.seriesSlug}`}
                   className="mt-3 inline-block text-[0.72rem] uppercase tracking-[0.16em] underline underline-offset-4"
                 >
-                  Ver la serie
+                  Ver la categoría
                 </Link>
               ) : null}
             </div>

@@ -1,10 +1,13 @@
 import "server-only"
 import { cache } from "react"
+import { connection } from "next/server"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getSupabaseEnv } from "@/lib/supabase/env"
 
 export const requireAdmin = cache(async function requireAdmin() {
+  await connection()
+
   if (!getSupabaseEnv()) {
     redirect("/admin/login?error=config")
   }
@@ -36,6 +39,8 @@ export const requireAdmin = cache(async function requireAdmin() {
 })
 
 export async function getAdminSession() {
+  await connection()
+
   if (!getSupabaseEnv()) {
     return null
   }

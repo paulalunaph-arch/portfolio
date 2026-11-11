@@ -1,5 +1,7 @@
-import type { Metadata } from "next"
+import type { CSSProperties } from "react"
+import type { Metadata, Viewport } from "next"
 import { Geist, Newsreader } from "next/font/google"
+import { getSiteSettings } from "@/lib/data/public"
 import { getSiteUrl } from "@/lib/supabase/env"
 import "./globals.css"
 
@@ -31,9 +33,23 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export async function generateViewport(): Promise<Viewport> {
+  const settings = await getSiteSettings()
+
+  return { themeColor: settings.colorBackground }
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings()
+  const theme = {
+    "--paper": settings.colorBackground,
+    "--ink": settings.colorText,
+    "--mute": settings.colorMuted,
+    "--line": settings.colorLine,
+  } as CSSProperties
+
   return (
-    <html lang="es" className={`${geist.variable} ${newsreader.variable} h-full antialiased`}>
+    <html lang="es" style={theme} className={`${geist.variable} ${newsreader.variable} h-full antialiased`}>
       <body className="min-h-full bg-paper text-ink">{children}</body>
     </html>
   )

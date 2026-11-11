@@ -12,6 +12,7 @@ import {
 } from "@/lib/image-processing/storage"
 import {
   isUuid,
+  readColor,
   readText,
   reductionPercent,
   validateEmail,
@@ -57,6 +58,16 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
     return { error: links.error }
   }
 
+  const background = readColor(formData.get("color_background"), "El fondo")
+  const text = readColor(formData.get("color_text"), "El texto")
+  const muted = readColor(formData.get("color_muted"), "El texto secundario")
+  const line = readColor(formData.get("color_line"), "Las líneas")
+  const colorError = [background, text, muted, line].find((item) => "error" in item)
+
+  if (colorError && "error" in colorError) {
+    return { error: colorError.error }
+  }
+
   const { data: settings } = await supabase.from("site_settings").select("id").limit(1).maybeSingle()
 
   if (!settings) {
@@ -79,10 +90,21 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
       seo_description: seoDescription,
       portrait_alt: portraitAlt,
       featured_image_alt: featuredAlt,
+      color_background: "color" in background ? background.color : undefined,
+      color_text: "color" in text ? text.color : undefined,
+      color_muted: "color" in muted ? muted.color : undefined,
+      color_line: "color" in line ? line.color : undefined,
     })
     .eq("id", settings.id)
 
   if (error) {
+    if (error.message.includes("color_background") || error.code === "PGRST204") {
+      return {
+        error:
+          "Los colores todavía no están en la base. En Supabase, abrí SQL Editor y ejecutá la migración de colores.",
+      }
+    }
+
     return { error: "No se pudo guardar la configuración." }
   }
 

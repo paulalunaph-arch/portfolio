@@ -1,8 +1,17 @@
+import { Suspense } from "react"
 import { DashboardStats } from "@/components/admin/DashboardStats"
 import { requireAdmin } from "@/lib/auth"
 import { getDashboard } from "@/lib/data/admin"
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<p className="text-sm text-mute">Abriendo el panel…</p>}>
+      <DashboardContent />
+    </Suspense>
+  )
+}
+
+async function DashboardContent() {
   const { supabase, email } = await requireAdmin()
   const data = await getDashboard(supabase)
 

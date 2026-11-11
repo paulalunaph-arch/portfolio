@@ -5,7 +5,7 @@ export function SeriesGrid({ series }: { series: SeriesSummary[] }) {
   if (series.length === 0) {
     return (
       <p className="max-w-md text-lg leading-8 text-mute">
-        Todavía no hay series publicadas.
+        Todavía no hay categorías publicadas.
       </p>
     )
   }

@@ -27,6 +27,10 @@ export type SiteSettings = {
   socialLinks: SocialLink[]
   seoTitle: string
   seoDescription: string
+  colorBackground: string
+  colorText: string
+  colorMuted: string
+  colorLine: string
 }
 
 export type SeriesSummary = {
@@ -136,4 +140,8 @@ export const emptySettings: SiteSettings = {
   socialLinks: [],
   seoTitle: "Paula Luna",
   seoDescription: "Fotoperiodismo y fotografía documental.",
+  colorBackground: "#040302",
+  colorText: "#f5f4ef",
+  colorMuted: "#a8a39b",
+  colorLine: "#161412",
 }

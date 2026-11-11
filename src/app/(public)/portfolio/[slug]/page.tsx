@@ -41,7 +41,7 @@ export async function generateMetadata({
 
 export default function SeriesPage({ params }: { params: Promise<RouteParams> }) {
   return (
-    <Suspense fallback={<p className="px-5 py-20 text-sm text-mute">Cargando la serie…</p>}>
+    <Suspense fallback={<p className="px-5 py-20 text-sm text-mute">Cargando la categoría…</p>}>
       <SeriesContent params={params} />
     </Suspense>
   )
@@ -76,7 +76,7 @@ async function SeriesContent({ params }: { params: Promise<RouteParams> }) {
       <div className="mt-16">
         <PhotoGallery photos={series.photos} />
       </div>
-      <nav className="mt-20 grid gap-6 border-t border-line pt-8 sm:grid-cols-2" aria-label="Otras series">
+      <nav className="mt-20 grid gap-6 border-t border-line pt-8 sm:grid-cols-2" aria-label="Otras categorías">
         {previous ? (
           <Link href={`/portfolio/${previous.slug}`} className="text-sm">
             <span className="block text-[0.68rem] uppercase tracking-[0.16em] text-mute">Anterior</span>

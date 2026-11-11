@@ -49,7 +49,7 @@ export async function prepareSeriesUpload(
   const { supabase } = await requireAdmin()
 
   if (!isUuid(seriesId)) {
-    return { error: "La serie no es válida." }
+    return { error: "La categoría no es válida." }
   }
 
   const invalid = validateIncomingFile(file)
@@ -61,7 +61,7 @@ export async function prepareSeriesUpload(
   const { data: series } = await supabase.from("series").select("id").eq("id", seriesId).maybeSingle()
 
   if (!series) {
-    return { error: "La serie no existe." }
+    return { error: "La categoría no existe." }
   }
 
   const photoId = crypto.randomUUID()
@@ -103,7 +103,7 @@ export async function finalizeSeriesUpload(input: {
       .maybeSingle()
 
     if (!series) {
-      return { error: "La serie no existe." }
+      return { error: "La categoría no existe." }
     }
 
     const buffer = await downloadObject(supabase, "incoming", incomingPath)
@@ -202,13 +202,13 @@ export async function savePhotographs(seriesId: string, drafts: PhotoDraft[]) {
   const { supabase } = await requireAdmin()
 
   if (!isUuid(seriesId)) {
-    return { error: "La serie no es válida." }
+    return { error: "La categoría no es válida." }
   }
 
   const { data: series } = await supabase.from("series").select("slug").eq("id", seriesId).maybeSingle()
 
   if (!series) {
-    return { error: "La serie no existe." }
+    return { error: "La categoría no existe." }
   }
 
   const { data: currentRows, error: currentError } = await supabase
@@ -325,7 +325,7 @@ export async function setCover(seriesId: string, photographId: string) {
     .maybeSingle()
 
   if (!photo) {
-    return { error: "Esa fotografía no pertenece a la serie." }
+    return { error: "Esa fotografía no pertenece a la categoría." }
   }
 
   const { error } = await supabase

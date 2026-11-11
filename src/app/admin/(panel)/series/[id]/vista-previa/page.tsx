@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 import { PhotoGallery } from "@/components/public/PhotoGallery"
 import { requireAdmin } from "@/lib/auth"
 import { getAdminSeries, listAdminPhotographs } from "@/lib/data/admin"
@@ -7,7 +8,15 @@ import { isUuid } from "@/lib/validations/content"
 import type { GalleryPhoto } from "@/types/content"
 import { metaLine } from "@/utils/format"
 
-export default async function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
+export default function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<p className="text-sm text-mute">Abriendo la vista previa…</p>}>
+      <PreviewContent params={params} />
+    </Suspense>
+  )
+}
+
+async function PreviewContent({ params }: { params: Promise<{ id: string }> }) {
   const { supabase } = await requireAdmin()
   const { id } = await params
 

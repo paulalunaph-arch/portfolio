@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { ImageDropzone } from "@/components/admin/ImageDropzone"
 import { finalizeSeriesUpload, prepareSeriesUpload } from "@/lib/actions/photographs"
 import { uploadOriginal } from "@/lib/client/upload"
-import { fieldClass } from "@/components/ui/controls"
 import { formatBytes } from "@/utils/format"
 
 type UploadItem = {
@@ -23,7 +23,6 @@ type UploadItem = {
 export function PhotographUploader({ seriesId }: { seriesId: string }) {
   const router = useRouter()
   const [items, setItems] = useState<UploadItem[]>([])
-  const [dragging, setDragging] = useState(false)
   const [busy, setBusy] = useState(false)
 
   function update(key: string, patch: Partial<UploadItem>) {
@@ -104,35 +103,18 @@ export function PhotographUploader({ seriesId }: { seriesId: string }) {
     <section className="mt-14">
       <h2 className="font-serif text-3xl tracking-tight">Subir fotografías</h2>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-mute">
-        Cada archivo se optimiza en el servidor antes de guardarse. El original no queda almacenado.
-        JPEG, PNG, WebP o TIFF, hasta 20 MB.
+        Las fotos entran a esta categoría. Cada archivo se optimiza en el servidor y el original no queda
+        guardado. Después podés escribir el epígrafe y decidir si se publican.
       </p>
-      <label
-        className={`mt-6 flex min-h-40 cursor-pointer flex-col items-start justify-end border border-dashed px-5 py-6 ${dragging ? "border-ink" : "border-line"}`}
-        onDragOver={(event) => {
-          event.preventDefault()
-          setDragging(true)
+      <ImageDropzone
+        multiple
+        busy={busy}
+        buttonLabel="Agregar fotografías"
+        hint="El botón abre tus carpetas. También podés arrastrar una o varias fotos, o una carpeta entera, y soltarlas en este recuadro. JPEG, PNG, WebP o TIFF, hasta 20 MB."
+        onFiles={(files) => {
+          void uploadFiles(files)
         }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(event) => {
-          event.preventDefault()
-          setDragging(false)
-          void uploadFiles(Array.from(event.dataTransfer.files))
-        }}
-      >
-        <span className="text-[0.72rem] uppercase tracking-[0.16em]">Arrastrar o elegir archivos</span>
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/tiff,.jpg,.jpeg,.png,.webp,.tif,.tiff"
-          multiple
-          className={`${fieldClass} mt-4 max-w-md cursor-pointer border-0 px-0`}
-          onChange={(event) => {
-            const files = event.target.files ? Array.from(event.target.files) : []
-            event.target.value = ""
-            void uploadFiles(files)
-          }}
-        />
-      </label>
+      />
       {items.length > 0 ? (
         <ul className="mt-6 divide-y divide-line border-y border-line">
           {items.map((item) => (

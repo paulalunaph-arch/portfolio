@@ -6,7 +6,7 @@ const freeTierBytes = 1024 * 1024 * 1024
 
 export function DashboardStats({ data }: { data: DashboardData }) {
   const stats = [
-    ["Series", String(data.totalSeries)],
+    ["Categorías", String(data.totalSeries)],
     ["Publicadas", String(data.publishedSeries)],
     ["Borradores", String(data.draftSeries)],
     ["Fotografías", String(data.totalPhotographs)],
@@ -30,7 +30,7 @@ export function DashboardStats({ data }: { data: DashboardData }) {
       </p>
       <div className="mt-8 flex flex-wrap gap-6 text-sm">
         <Link href="/admin/series/nueva" className="underline decoration-line underline-offset-4">
-          Nueva serie
+          Nueva categoría
         </Link>
         <Link href="/admin/series" className="underline decoration-line underline-offset-4">
           Subir fotografías
@@ -42,7 +42,7 @@ export function DashboardStats({ data }: { data: DashboardData }) {
       <section className="mt-12">
         <h2 className="font-serif text-3xl tracking-tight">Últimos cambios</h2>
         {data.recent.length === 0 ? (
-          <p className="mt-4 text-sm text-mute">Todavía no hay series.</p>
+          <p className="mt-4 text-sm text-mute">Todavía no hay categorías.</p>
         ) : (
           <ul className="mt-4 divide-y divide-line border-y border-line">
             {data.recent.map((item) => (

@@ -94,6 +94,10 @@ create table if not exists public.site_settings (
   social_links jsonb not null default '[]'::jsonb check (jsonb_typeof(social_links) = 'array'),
   seo_title text not null default '',
   seo_description text not null default '',
+  color_background text not null default '#040302',
+  color_text text not null default '#f5f4ef',
+  color_muted text not null default '#a8a39b',
+  color_line text not null default '#161412',
   updated_at timestamptz not null default now(),
   singleton boolean not null default true unique
 );
@@ -101,6 +105,17 @@ create table if not exists public.site_settings (
 insert into public.site_settings (photographer_name, profession, seo_title, seo_description)
 select 'Paula Luna', 'Fotoperiodismo / Fotografía documental', 'Paula Luna', 'Fotoperiodismo y fotografía documental.'
 where not exists (select 1 from public.site_settings);
+
+alter table public.site_settings
+  drop constraint if exists site_settings_colors_hex;
+
+alter table public.site_settings
+  add constraint site_settings_colors_hex check (
+    color_background ~ '^#[0-9a-fA-F]{6}$'
+    and color_text ~ '^#[0-9a-fA-F]{6}$'
+    and color_muted ~ '^#[0-9a-fA-F]{6}$'
+    and color_line ~ '^#[0-9a-fA-F]{6}$'
+  );
 
 -- ---------------------------------------------------------------------------
 -- Índices

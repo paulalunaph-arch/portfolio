@@ -6,7 +6,7 @@ import { logout } from "@/lib/actions/auth"
 
 const links = [
   { href: "/admin/dashboard", label: "Panel" },
-  { href: "/admin/series", label: "Series" },
+  { href: "/admin/series", label: "Categorías" },
   { href: "/admin/configuracion", label: "Configuración" },
 ]
 

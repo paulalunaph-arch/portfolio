@@ -47,7 +47,7 @@ export async function createSeries(_prev: ActionState, formData: FormData): Prom
   }
 
   if (await slugBelongsToAnother(supabase, values.slug)) {
-    return { error: "Ya existe una serie con ese enlace." }
+    return { error: "Ya existe una categoría con ese enlace." }
   }
 
   const { data: last } = await supabase
@@ -68,10 +68,10 @@ export async function createSeries(_prev: ActionState, formData: FormData): Prom
 
   if (insertError || !data) {
     if (insertError?.code === "23505") {
-      return { error: "Ya existe una serie con ese enlace." }
+      return { error: "Ya existe una categoría con ese enlace." }
     }
 
-    return { error: "No se pudo crear la serie." }
+    return { error: "No se pudo crear la categoría." }
   }
 
   invalidateSeries(data.slug)
@@ -83,7 +83,7 @@ export async function updateSeries(_prev: ActionState, formData: FormData): Prom
   const id = String(formData.get("id") ?? "")
 
   if (!isUuid(id)) {
-    return { error: "La serie no es válida." }
+    return { error: "La categoría no es válida." }
   }
 
   const { error, values } = seriesPayload(formData)
@@ -95,21 +95,21 @@ export async function updateSeries(_prev: ActionState, formData: FormData): Prom
   const { data: current } = await supabase.from("series").select("slug").eq("id", id).maybeSingle()
 
   if (!current) {
-    return { error: "La serie no existe." }
+    return { error: "La categoría no existe." }
   }
 
   if (await slugBelongsToAnother(supabase, values.slug, id)) {
-    return { error: "Ya existe una serie con ese enlace." }
+    return { error: "Ya existe una categoría con ese enlace." }
   }
 
   const { error: updateError } = await supabase.from("series").update(values).eq("id", id)
 
   if (updateError) {
     if (updateError.code === "23505") {
-      return { error: "Ya existe una serie con ese enlace." }
+      return { error: "Ya existe una categoría con ese enlace." }
     }
 
-    return { error: "No se pudo guardar la serie." }
+    return { error: "No se pudo guardar la categoría." }
   }
 
   try {
@@ -120,7 +120,7 @@ export async function updateSeries(_prev: ActionState, formData: FormData): Prom
   }
 
   invalidateSeries(values.slug, current.slug)
-  return { ok: "Serie guardada." }
+  return { ok: "Categoría guardada." }
 }
 
 export async function deleteSeries(formData: FormData) {

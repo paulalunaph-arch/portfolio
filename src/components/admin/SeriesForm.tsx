@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { createSeries, updateSeries } from "@/lib/actions/series"
 import { buttonClass, fieldClass, labelClass } from "@/components/ui/controls"
+import { Hint } from "@/components/ui/Hint"
+import { useUnsavedChanges } from "@/components/admin/useUnsavedChanges"
 import { slugify } from "@/lib/validations/content"
 import type { ActionState, AdminSeries } from "@/types/content"
 
@@ -14,16 +16,20 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
   const [title, setTitle] = useState(series?.title ?? "")
   const [slug, setSlug] = useState(series?.slug ?? "")
   const [slugEdited, setSlugEdited] = useState(Boolean(series))
+  const [dirty, setDirty] = useState(false)
   const router = useRouter()
+
+  useUnsavedChanges(dirty && !state.ok)
 
   useEffect(() => {
     if (state.ok) {
+      setDirty(false)
       router.refresh()
     }
   }, [state, router])
 
   return (
-    <form action={formAction} className="grid max-w-3xl gap-6">
+    <form action={formAction} className="grid max-w-3xl gap-6" onChange={() => setDirty(true)}>
       {series ? <input type="hidden" name="id" value={series.id} /> : null}
       <div>
         <label className={labelClass} htmlFor="title">
@@ -41,8 +47,9 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
               setSlug(slugify(next))
             }
           }}
-          className={fieldClass}
+          className={`${fieldClass} mt-2`}
         />
+        <Hint>El nombre de la categoría, tal como se lee en el portfolio. Por ejemplo: Calle.</Hint>
       </div>
       <div>
         <label className={labelClass} htmlFor="slug">
@@ -57,9 +64,12 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
             setSlugEdited(true)
             setSlug(slugify(event.target.value))
           }}
-          className={fieldClass}
+          className={`${fieldClass} mt-2`}
         />
-        <p className="mt-2 text-sm text-mute">/portfolio/{slug || "nombre-de-la-serie"}</p>
+        <Hint>
+          La dirección de esta categoría: /portfolio/{slug || "nombre-de-la-categoria"}. Se arma sola a partir del
+          título. Cambiala solo si querés otra dirección. Sin espacios ni mayúsculas.
+        </Hint>
       </div>
       <div>
         <label className={labelClass} htmlFor="description">
@@ -70,8 +80,9 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
           name="description"
           rows={6}
           defaultValue={series?.description ?? ""}
-          className={fieldClass}
+          className={`${fieldClass} mt-2`}
         />
+        <Hint>El texto que aparece arriba de las fotos, al entrar a la categoría. También se ve, recortado, en el portfolio.</Hint>
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
@@ -83,8 +94,9 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
             name="year"
             inputMode="numeric"
             defaultValue={series?.year ?? ""}
-            className={fieldClass}
+            className={`${fieldClass} mt-2`}
           />
+          <Hint>El año del trabajo. Si no aplica, dejalo vacío.</Hint>
         </div>
         <div>
           <label className={labelClass} htmlFor="location">
@@ -94,14 +106,20 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
             id="location"
             name="location"
             defaultValue={series?.location ?? ""}
-            className={fieldClass}
+            className={`${fieldClass} mt-2`}
           />
+          <Hint>El lugar. Aparece junto al año, arriba de las fotos.</Hint>
         </div>
       </div>
-      <label className="flex items-center gap-3 text-sm">
-        <input type="checkbox" name="published" defaultChecked={series?.published ?? false} className="size-4 accent-ink" />
-        Publicada
-      </label>
+      <div>
+        <label className="flex items-center gap-3 text-sm">
+          <input type="checkbox" name="published" defaultChecked={series?.published ?? false} className="size-4 accent-ink" />
+          Publicada
+        </label>
+        <Hint>
+          Si está marcada, la categoría se ve en el sitio. Si no, queda solo en el estudio, como borrador.
+        </Hint>
+      </div>
       {state.error ? (
         <p role="alert" className="text-sm text-danger">
           {state.error}
@@ -114,7 +132,7 @@ export function SeriesForm({ series }: { series?: AdminSeries }) {
       ) : null}
       <div>
         <button type="submit" className={buttonClass} disabled={pending}>
-          {pending ? "Guardando…" : series ? "Guardar serie" : "Crear serie"}
+          {pending ? "Guardando…" : series ? "Guardar categoría" : "Crear categoría"}
         </button>
       </div>
     </form>
