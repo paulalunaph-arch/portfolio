@@ -86,6 +86,7 @@ export async function getAdminSettings(supabase: SupabaseClient): Promise<SiteSe
     socialLinks: asLinks(data.social_links),
     seoTitle: data.seo_title ?? "",
     seoDescription: data.seo_description ?? "",
+    homeIntro: data.home_intro ?? "",
     colorBackground: hexOr(data.color_background, emptySettings.colorBackground),
     colorText: hexOr(data.color_text, emptySettings.colorText),
     colorMuted: hexOr(data.color_muted, emptySettings.colorMuted),

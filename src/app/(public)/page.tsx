@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { connection } from "next/server"
 import { PhotoViewer } from "@/components/public/PhotoViewer"
 import { getHomeSelection, getSiteSettings } from "@/lib/data/public"
+import { homeIntroText } from "@/types/content"
 
 export default function HomePage() {
   return (
@@ -14,7 +15,6 @@ export default function HomePage() {
 async function HomeContent() {
   await connection()
   const [settings, photos] = await Promise.all([getSiteSettings(), getHomeSelection()])
-  const name = settings.photographerName || "Paula Luna"
 
   return (
     <div className="px-5 md:px-10 lg:px-11">
@@ -24,7 +24,7 @@ async function HomeContent() {
           Portfolio
         </h1>
         <p className="mt-[18px] max-w-[1040px] text-[17px] leading-[1.55] text-mute">
-          Selección de fotografías documentales de {name}, de proyectos de largo aliento y encargos.
+          {homeIntroText(settings)}
         </p>
       </header>
       <div className="py-12 lg:py-16">

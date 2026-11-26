@@ -27,6 +27,7 @@ export type SiteSettings = {
   socialLinks: SocialLink[]
   seoTitle: string
   seoDescription: string
+  homeIntro: string
   colorBackground: string
   colorText: string
   colorMuted: string
@@ -116,6 +117,18 @@ export type ActionState = {
   ok?: string
 }
 
+export function homeIntroText(settings: Pick<SiteSettings, "homeIntro" | "photographerName">) {
+  const custom = settings.homeIntro.trim()
+
+  if (custom) {
+    return custom
+  }
+
+  const name = settings.photographerName.trim() || "Paula Luna"
+
+  return `Selección de fotografías documentales de ${name}, de proyectos de largo aliento y encargos.`
+}
+
 export const emptySettings: SiteSettings = {
   photographerName: "Paula Luna",
   profession: "Fotoperiodismo / Fotografía documental",
@@ -140,6 +153,7 @@ export const emptySettings: SiteSettings = {
   socialLinks: [],
   seoTitle: "Paula Luna",
   seoDescription: "Fotoperiodismo y fotografía documental.",
+  homeIntro: "",
   colorBackground: "#040302",
   colorText: "#f5f4ef",
   colorMuted: "#a8a39b",

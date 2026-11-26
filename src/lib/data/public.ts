@@ -34,6 +34,7 @@ type SettingsRow = {
   social_links: unknown
   seo_title: string
   seo_description: string
+  home_intro?: string | null
   color_background?: string | null
   color_text?: string | null
   color_muted?: string | null
@@ -86,6 +87,7 @@ function mapSettings(row: SettingsRow): SiteSettings {
     socialLinks: asLinks(row.social_links),
     seoTitle: row.seo_title ?? "",
     seoDescription: row.seo_description ?? "",
+    homeIntro: row.home_intro ?? "",
     colorBackground: hexOr(row.color_background, emptySettings.colorBackground),
     colorText: hexOr(row.color_text, emptySettings.colorText),
     colorMuted: hexOr(row.color_muted, emptySettings.colorMuted),

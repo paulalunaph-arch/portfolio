@@ -94,6 +94,7 @@ create table if not exists public.site_settings (
   social_links jsonb not null default '[]'::jsonb check (jsonb_typeof(social_links) = 'array'),
   seo_title text not null default '',
   seo_description text not null default '',
+  home_intro text not null default '',
   color_background text not null default '#040302',
   color_text text not null default '#f5f4ef',
   color_muted text not null default '#a8a39b',

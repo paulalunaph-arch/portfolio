@@ -44,6 +44,7 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
   const instagram = readText(formData.get("instagram"), 160)
   const seoTitle = readText(formData.get("seo_title"), 160)
   const seoDescription = readText(formData.get("seo_description"), 300)
+  const homeIntro = readText(formData.get("home_intro"), 500)
   const portraitAlt = readText(formData.get("portrait_alt"), 300)
   const featuredAlt = readText(formData.get("featured_image_alt"), 300)
   const emailError = validateEmail(email)
@@ -88,6 +89,7 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
       social_links: links.links,
       seo_title: seoTitle,
       seo_description: seoDescription,
+      home_intro: homeIntro,
       portrait_alt: portraitAlt,
       featured_image_alt: featuredAlt,
       color_background: "color" in background ? background.color : undefined,
@@ -98,6 +100,13 @@ export async function updateSettings(_prev: ActionState, formData: FormData): Pr
     .eq("id", settings.id)
 
   if (error) {
+    if (error.message.includes("home_intro")) {
+      return {
+        error:
+          "El texto del inicio todavía no está en la base. En Supabase, abrí SQL Editor y ejecutá la migración del texto del inicio.",
+      }
+    }
+
     if (error.message.includes("color_background") || error.code === "PGRST204") {
       return {
         error:

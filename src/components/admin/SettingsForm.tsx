@@ -6,7 +6,7 @@ import { updateSettings } from "@/lib/actions/settings"
 import { buttonClass, fieldClass, labelClass, quietButtonClass } from "@/components/ui/controls"
 import { Hint } from "@/components/ui/Hint"
 import { useUnsavedChanges } from "@/components/admin/useUnsavedChanges"
-import type { ActionState, SiteSettings, SocialLink } from "@/types/content"
+import { homeIntroText, type ActionState, type SiteSettings, type SocialLink } from "@/types/content"
 
 const colorFields = [
   {
@@ -109,6 +109,13 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         label="Nombre"
         defaultValue={settings.photographerName}
         hint="El nombre que se lee en la barra, en el pie y como título de Sobre mí y Contacto."
+      />
+      <Area
+        id="home_intro"
+        label="Texto del inicio"
+        defaultValue={homeIntroText(settings)}
+        rows={3}
+        hint="La frase debajo del título Portfolio, en la página principal. Si lo dejás vacío, vuelve la frase de siempre, con el nombre de arriba."
       />
       <Field
         id="profession"
